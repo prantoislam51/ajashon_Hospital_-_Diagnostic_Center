@@ -26,19 +26,9 @@ const slim = doctors.map(d => ({ slug:d.slug, name:d.name, dept:departments.find
     </div>
   </section>
 
-  <section class="block">
+  <section class="block alt center-gallery">
     <div class="wrap">
-      <div class="sec-h"><h2><T en="About us" bn="আমাদের সম্পর্কে" /></h2></div>
-      <div class="contact">
-        <p><T en="Rajashon Hospital & Diagnostic Center serves patients of Savar and nearby areas with consultation, pathology and imaging under one roof. (Sample text — replace with your own introduction.)" bn="রাজাসন হসপিটাল এন্ড ডায়াগনস্টিক সেন্টার সাভার ও আশপাশের রোগীদের পরামর্শ, প্যাথলজি ও ইমেজিং সেবা এক ছাদের নিচে দিয়ে থাকে। (নমুনা লেখা — নিজের পরিচিতি দিয়ে বদলান।)" /></p>
-        <p class="muted"><T {...center.address} /><br /><T {...center.landmark} /></p>
-      </div>
-    </div>
-  </section>
-
-  <section class="block alt">
-    <div class="wrap">
-      <div class="sec-h"><h2><T en="Our center" bn="আমাদের সেন্টার" /></h2><a href="/gallery"><T en="View all photos" bn="সব ছবি দেখুন" /></a></div>
+      <div class="sec-h"><div><h2><T en="Our hospital & diagnostic center" bn="আমাদের হাসপাতাল ও ডায়াগনস্টিক সেন্টার" /></h2><p><T en="A closer look at our facilities and patient-friendly spaces." bn="আমাদের সেবা, সুবিধা ও রোগীবান্ধব পরিবেশের কিছু ছবি।" /></p></div><a href="/gallery"><T en="View all photos" bn="সব ছবি দেখুন" /></a></div>
       <div class="gal">
         {gallery.slice(0, 3).map(g => (
           <figure data-src={g.src}>
@@ -46,6 +36,16 @@ const slim = doctors.map(d => ({ slug:d.slug, name:d.name, dept:departments.find
             <figcaption><b><T {...g.title} /></b><span class="d"><T {...g.text} /></span></figcaption>
           </figure>
         ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="wrap">
+      <div class="sec-h"><h2><T en="About us" bn="আমাদের সম্পর্কে" /></h2></div>
+      <div class="contact">
+        <p><T en="Rajashon Hospital & Diagnostic Center serves patients of Savar and nearby areas with consultation, pathology and imaging under one roof. (Sample text — replace with your own introduction.)" bn="রাজাসন হসপিটাল এন্ড ডায়াগনস্টিক সেন্টার সাভার ও আশপাশের রোগীদের পরামর্শ, প্যাথলজি ও ইমেজিং সেবা এক ছাদের নিচে দিয়ে থাকে। (নমুনা লেখা — নিজের পরিচিতি দিয়ে বদলান।)" /></p>
+        <p class="muted"><T {...center.address} /><br /><T {...center.landmark} /></p>
       </div>
     </div>
   </section>
