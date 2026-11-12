@@ -1,0 +1,82 @@
+---
+import '../styles/global.css';
+import T from '../components/T.astro';
+import { center, bn } from '../data/center.js';
+const { en: tEn, bn: tBn, description = center.tagline.en } = Astro.props;
+const path = Astro.url.pathname;
+const links = [['/', 'Home','হোম'],['/doctors','Doctors','ডাক্তার'],['/tests','Tests & Prices','টেস্ট ও মূল্য'],['/gallery','Gallery','গ্যালারি'],['/appointment','Appointment','অ্যাপয়েন্টমেন্ট'],['/contact','Contact','যোগাযোগ']];
+const ld = { '@context':'https://schema.org', '@type':'Hospital', name:center.name.en, address:center.address.en, telephone:center.serialPhones[0] };
+const fullEn = tEn ? `${tEn} | ${center.name.en}` : center.name.en;
+const fullBn = tBn ? `${tBn} | ${center.name.bn}` : center.name.bn;
+---
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{fullEn}</title>
+  <meta name="description" content={description} />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <script is:inline>
+    try { var d = document.documentElement; d.lang = localStorage.getItem('lang') || 'en'; d.dataset.theme = localStorage.getItem('theme') || 'light'; } catch (e) {}
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600&family=Noto+Serif+Bengali:wght@600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <script type="application/ld+json" set:html={JSON.stringify(ld)} />
+</head>
+<body data-t-en={fullEn} data-t-bn={fullBn}>
+  <div class="demo"><T en="Demo version — doctors, degrees, BMDC numbers, schedules and prices are sample data" bn="ডেমো সংস্করণ — ডাক্তার, ডিগ্রি, BMDC নম্বর, সময়সূচি ও মূল্য নমুনা তথ্য" /></div>
+  <header class="top">
+    <div class="wrap bar">
+      <a class="brand" href="/">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#0e5c63"/><path d="M13 7h6v6h6v6h-6v6h-6v-6H7v-6h6z" fill="#fff"/></svg>
+        <b><T en={center.name.en} bn={center.name.bn} /></b>
+      </a>
+      <div class="ctl">
+        <button class="ib" id="lang" type="button" aria-label="Change language / ভাষা বদলান"><span data-l="en">বাংলা</span><span data-l="bn">English</span></button>
+        <button class="ib" id="theme" type="button" aria-label="Toggle day/night mode"><span class="moon">☾</span><span class="sun">☀</span></button>
+        <button class="ib" id="menu" type="button" aria-expanded="false" aria-controls="nav" aria-label="Menu">☰</button>
+      </div>
+      <nav id="nav" aria-label="Main">
+        {links.map(([href, en, b]) => <a href={href} aria-current={(href === '/' ? path === '/' : path.startsWith(href)) ? 'page' : undefined}><T en={en} bn={b} /></a>)}
+      </nav>
+    </div>
+  </header>
+  <main><slot /></main>
+  <footer>
+    <div class="wrap">
+      <div class="cols">
+        <div><h3><T en={center.name.en} bn={center.name.bn} /></h3><p><T {...center.address} /></p><p><T {...center.landmark} /></p><p><T {...center.license} /></p></div>
+        <div><h3><T en="Serial / Contact" bn="সিরিয়াল / যোগাযোগ" /></h3>{center.serialPhones.map(p => <p><a href={`tel:${p}`}><T en={p} bn={bn(p)} /></a></p>)}<p>{center.email}</p></div>
+        <div><h3><T en="Links" bn="লিংক" /></h3>{links.map(([h, en, b]) => <p><a href={h}><T en={en} bn={b} /></a></p>)}</div>
+      </div>
+      <p class="copy">© {new Date().getFullYear()} <T en={center.name.en} bn={center.name.bn} />. <T en="Information on this site does not replace a doctor's advice." bn="এই ওয়েবসাইটের তথ্য চিকিৎসকের পরামর্শের বিকল্প নয়।" /></p>
+    </div>
+  </footer>
+  <script is:inline>
+    (function () {
+      var d = document.documentElement, b = document.body;
+      function apply() {
+        var l = d.lang;
+        document.title = l === 'bn' ? b.dataset.tBn : b.dataset.tEn;
+        document.querySelectorAll('[data-en]').forEach(function (e) { e.textContent = e.getAttribute('data-' + l); });
+        document.querySelectorAll('[data-ph-en]').forEach(function (e) { e.placeholder = e.getAttribute('data-ph-' + l); });
+        document.dispatchEvent(new Event('langchange'));
+      }
+      document.getElementById('lang').addEventListener('click', function () {
+        d.lang = d.lang === 'en' ? 'bn' : 'en';
+        try { localStorage.setItem('lang', d.lang); } catch (e) {}
+        apply();
+      });
+      document.getElementById('theme').addEventListener('click', function () {
+        d.dataset.theme = d.dataset.theme === 'dark' ? 'light' : 'dark';
+        try { localStorage.setItem('theme', d.dataset.theme); } catch (e) {}
+      });
+      var m = document.getElementById('menu'), n = document.getElementById('nav');
+      m.addEventListener('click', function () { var o = n.classList.toggle('open'); m.setAttribute('aria-expanded', o); });
+      window.__apply = apply; apply();
+    })();
+  </script>
+</body>
+</html>

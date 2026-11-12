@@ -1,0 +1,32 @@
+---
+import Base from '../layouts/Base.astro';
+import T from '../components/T.astro';
+import { center, faqs, bn } from '../data/center.js';
+---
+<Base en="Contact" bn="যোগাযোগ">
+  <section class="block">
+    <div class="wrap">
+      <div class="sec-h"><h2><T en="Contact us" bn="যোগাযোগ" /></h2></div>
+      <div class="contact">
+        <div class="card">
+          <h3><T en="Address" bn="ঠিকানা" /></h3><p><T {...center.address} /><br /><T {...center.landmark} /></p>
+          <h3><T en="Serial numbers" bn="সিরিয়ালের নম্বর" /></h3>{center.serialPhones.map(p => <p><a href={`tel:${p}`}><T en={p} bn={bn(p)} /></a></p>)}
+          <h3><T en="Email" bn="ইমেইল" /></h3><p><a href={`mailto:${center.email}`}>{center.email}</a></p>
+          <h3><T en="Opening hours" bn="খোলার সময়" /></h3><p><T {...center.hours} /></p>
+          <p><a class="btn" href={`https://wa.me/${center.whatsapp}`} target="_blank" rel="noopener"><T en="Chat on WhatsApp" bn="WhatsApp করুন" /></a></p>
+        </div>
+        <div class="card">
+          <h3><T en="Map" bn="ম্যাপ" /></h3>
+          <iframe title="Map" loading="lazy" style="border:0;width:100%;height:300px;border-radius:8px"
+            src={`https://www.google.com/maps?q=${encodeURIComponent(center.mapQuery)}&output=embed`}></iframe>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="block alt">
+    <div class="wrap">
+      <div class="sec-h"><h2><T en="Frequently asked questions" bn="সাধারণ প্রশ্ন" /></h2></div>
+      {faqs.map(f => <details><summary><T {...f.q} /></summary><p class="muted" style="margin-top:.5rem"><T {...f.a} /></p></details>)}
+    </div>
+  </section>
+</Base>

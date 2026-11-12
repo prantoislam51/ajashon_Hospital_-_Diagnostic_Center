@@ -1,0 +1,56 @@
+---
+import Base from '../layouts/Base.astro';
+import T from '../components/T.astro';
+import { tests, testCats, packages, taka } from '../data/center.js';
+const cat = (id) => testCats.find(c => c.id === id);
+---
+<Base en="Tests & Prices" bn="টেস্ট ও মূল্য">
+  <section class="block">
+    <div class="wrap">
+      <div class="sec-h"><div><h2><T en="Tests & price list" bn="টেস্ট ও মূল্য তালিকা" /></h2><p><T en="Price, preparation and report time in one place" bn="মূল্য, প্রস্তুতি ও রিপোর্ট পাওয়ার সময় একসাথে" /></p></div></div>
+      <div class="tools">
+        <input id="q" type="search" data-ph-en="Search a test" data-ph-bn="টেস্টের নাম লিখুন" aria-label="Search" />
+        <select id="cat" aria-label="Category">
+          <option value="" data-en="All types" data-bn="সব ধরন">All types</option>
+          {testCats.map(c => <option value={c.id} data-en={c.en} data-bn={c.bn}>{c.en}</option>)}
+        </select>
+      </div>
+      <div class="scroll">
+        <table class="tbl">
+          <thead><tr>
+            <th><T en="Test" bn="টেস্ট" /></th><th><T en="Type" bn="ধরন" /></th><th><T en="Price" bn="মূল্য" /></th>
+            <th class="hide-s"><T en="Report" bn="রিপোর্ট" /></th><th class="hide-s"><T en="Preparation" bn="প্রস্তুতি" /></th>
+          </tr></thead>
+          <tbody id="rows">
+            {tests.map(t => (
+              <tr data-n={(t.name.en + ' ' + t.name.bn).toLowerCase()} data-c={t.cat}>
+                <td><T {...t.name} /></td><td><T {...cat(t.cat)} /></td><td class="p"><T {...taka(t.price)} /></td>
+                <td class="hide-s"><T {...t.report} /></td><td class="hide-s"><T {...t.prep} /></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="note" style="margin-top:1rem"><T en="Prices are samples and may change. Please confirm the latest price by phone." bn="মূল্য নমুনা এবং পরিবর্তনযোগ্য। সর্বশেষ মূল্য ফোনে নিশ্চিত করুন।" /></p>
+    </div>
+  </section>
+  <section class="block alt">
+    <div class="wrap">
+      <div class="sec-h"><h2><T en="Health packages" bn="হেলথ প্যাকেজ" /></h2></div>
+      <div class="grid">
+        {packages.map(p => (
+          <div class="card pkg"><h3><T {...p.name} /></h3><div class="price"><T {...taka(p.price)} /></div><ul>{p.items.map(i => <li><T {...i} /></li>)}</ul></div>
+        ))}
+      </div>
+    </div>
+  </section>
+  <script is:inline>
+    var q = document.getElementById('q'), cat = document.getElementById('cat');
+    var rows = [].slice.call(document.querySelectorAll('#rows tr'));
+    function run() {
+      var t = q.value.trim().toLowerCase();
+      rows.forEach(function (r) { r.hidden = !((!t || r.dataset.n.indexOf(t) > -1) && (!cat.value || r.dataset.c === cat.value)); });
+    }
+    [q, cat].forEach(function (e) { e.addEventListener('input', run); });
+  </script>
+</Base>

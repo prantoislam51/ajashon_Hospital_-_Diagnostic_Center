@@ -1,0 +1,107 @@
+---
+import Base from '../layouts/Base.astro';
+import T from '../components/T.astro';
+import { center, doctors, departments, packages, gallery, days, range, bn, taka } from '../data/center.js';
+const slim = doctors.map(d => ({ slug:d.slug, name:d.name, dept:departments.find(x => x.id === d.dept), room:d.room,
+  schedule:d.schedule.map(s => ({ days:s.days, t:range(s.from, s.to) })) }));
+---
+<Base>
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <p class="name"><T {...center.name} /></p>
+        <h1><T {...center.tagline} /></h1>
+        <p class="lead"><T en="Experienced specialist doctors, a modern laboratory and imaging services in Savar. Find a doctor, check test prices and request a serial from home." bn="সাভারে অভিজ্ঞ বিশেষজ্ঞ চিকিৎসক, আধুনিক ল্যাব ও ইমেজিং সেবা। ডাক্তার খুঁজুন, টেস্টের মূল্য দেখুন, ঘরে বসেই সিরিয়াল নিন।" /></p>
+        <div class="cta">
+          <a class="btn" href="/appointment"><T en="Request a serial" bn="সিরিয়াল নিন" /></a>
+          <a class="btn ghost" href="/doctors"><T en="Find a doctor" bn="ডাক্তার খুঁজুন" /></a>
+        </div>
+        <p class="serial"><T en="For serial:" bn="সিরিয়ালের জন্য:" /> {center.serialPhones.map(p => <a href={`tel:${p}`}><T en={p} bn={bn(p)} /></a>)}</p>
+      </div>
+      <div class="slip" aria-live="polite">
+        <h2><T en="Doctors sitting today" bn="আজ যাঁরা বসছেন" /></h2>
+        <p class="day" id="today-label"></p>
+        <ul id="today-list"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="wrap">
+      <div class="sec-h"><h2><T en="About us" bn="আমাদের সম্পর্কে" /></h2></div>
+      <div class="contact">
+        <p><T en="Rajashon Hospital & Diagnostic Center serves patients of Savar and nearby areas with consultation, pathology and imaging under one roof. (Sample text — replace with your own introduction.)" bn="রাজাসন হসপিটাল এন্ড ডায়াগনস্টিক সেন্টার সাভার ও আশপাশের রোগীদের পরামর্শ, প্যাথলজি ও ইমেজিং সেবা এক ছাদের নিচে দিয়ে থাকে। (নমুনা লেখা — নিজের পরিচিতি দিয়ে বদলান।)" /></p>
+        <p class="muted"><T {...center.address} /><br /><T {...center.landmark} /></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block alt">
+    <div class="wrap">
+      <div class="sec-h"><h2><T en="Our center" bn="আমাদের সেন্টার" /></h2><a href="/gallery"><T en="View all photos" bn="সব ছবি দেখুন" /></a></div>
+      <div class="gal">
+        {gallery.slice(0, 3).map(g => (
+          <figure data-src={g.src}>
+            <img src={g.src} alt={g.title.en} loading="lazy" />
+            <figcaption><b><T {...g.title} /></b><span class="d"><T {...g.text} /></span></figcaption>
+          </figure>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="wrap">
+      <div class="sec-h"><h2><T en="Departments" bn="বিভাগসমূহ" /></h2><a href="/doctors"><T en="All doctors" bn="সব ডাক্তার" /></a></div>
+      <div class="grid">
+        {departments.map(d => (
+          <a class="card" href={`/doctors?dept=${d.id}`} style="text-decoration:none">
+            <h3><T {...d} /></h3>
+            <span class="muted"><T en={`${doctors.filter(x => x.dept === d.id).length} specialist(s)`} bn={`${bn(doctors.filter(x => x.dept === d.id).length)} জন বিশেষজ্ঞ`} /></span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="block alt">
+    <div class="wrap">
+      <div class="sec-h"><h2><T en="Health packages" bn="হেলথ প্যাকেজ" /></h2><a href="/tests"><T en="All test prices" bn="সব টেস্টের মূল্য" /></a></div>
+      <div class="grid">
+        {packages.map(p => (
+          <div class="card pkg">
+            <h3><T {...p.name} /></h3>
+            <div class="price"><T {...taka(p.price)} /></div>
+            <ul>{p.items.map(i => <li><T {...i} /></li>)}</ul>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <dialog id="lb"><button class="ib" id="lbx" aria-label="Close">✕</button><img id="lbi" alt="" /><div class="cap" id="lbc"></div></dialog>
+
+  <script is:inline define:vars={{ doctors: slim, days }}>
+    var t = new Date().getDay();
+    var lab = document.getElementById('today-label');
+    lab.innerHTML = '<span data-l="en">' + days[t].en + '</span><span data-l="bn">' + days[t].bn + '</span>';
+    var list = document.getElementById('today-list');
+    var today = doctors.map(function (d) { return { d: d, s: d.schedule.find(function (x) { return x.days.indexOf(t) > -1; }) }; }).filter(function (x) { return x.s; });
+    if (!today.length) list.innerHTML = '<li class="none"><span data-l="en">No chambers today.</span><span data-l="bn">আজ কোনো চেম্বার নেই।</span></li>';
+    today.forEach(function (x) {
+      var li = document.createElement('li');
+      li.innerHTML = '<a href="/doctors/' + x.d.slug + '"><span data-l="en">' + x.d.name.en + '</span><span data-l="bn">' + x.d.name.bn + '</span></a><span class="t"><span data-l="en">' + x.s.t.en + '</span><span data-l="bn">' + x.s.t.bn + '</span></span>';
+      list.appendChild(li);
+    });
+    var lb = document.getElementById('lb');
+    document.querySelectorAll('.gal figure').forEach(function (f) {
+      f.addEventListener('click', function () {
+        document.getElementById('lbi').src = f.dataset.src;
+        document.getElementById('lbc').innerHTML = f.querySelector('figcaption').innerHTML;
+        lb.showModal();
+      });
+    });
+    document.getElementById('lbx').addEventListener('click', function () { lb.close(); });
+    lb.addEventListener('click', function (e) { if (e.target === lb) lb.close(); });
+  </script>
+</Base>

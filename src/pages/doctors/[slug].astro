@@ -1,0 +1,44 @@
+---
+import Base from '../../layouts/Base.astro';
+import T from '../../components/T.astro';
+import { doctors, departments, daysShort, days, range, taka, bn } from '../../data/center.js';
+export function getStaticPaths() { return doctors.map(d => ({ params: { slug: d.slug }, props: { d } })); }
+const { d } = Astro.props;
+const dep = departments.find(x => x.id === d.dept);
+---
+<Base en={d.name.en} bn={d.name.bn}>
+  <section class="block">
+    <div class="wrap">
+      <p class="muted"><a href="/doctors">← <T en="All doctors" bn="সব ডাক্তার" /></a></p>
+      <div class="profile">
+        <aside class="card">
+          <div class="avatar" style="width:88px;height:88px;font-size:2.2rem">{d.name.en.replace('Dr. ', '')[0]}</div>
+          <h1 style="font-size:1.5rem"><T {...d.name} /></h1>
+          <p><span class="tag"><T {...dep} /></span></p>
+          <p class="muted"><T en={`BMDC Reg. No: ${d.bmdc}`} bn={`BMDC রেজি. নং: ${d.bmdc}`} /></p>
+          <p class="muted"><T en={`Experience: ${d.exp} years`} bn={`অভিজ্ঞতা: ${bn(d.exp)} বছর`} /></p>
+          <p><T en="Visit fee:" bn="ভিজিট:" /> <span class="price">{d.fee ? <T {...taka(d.fee)} /> : <T en="N/A" bn="প্রযোজ্য নয়" />}</span></p>
+          <a class="btn" href={`/appointment?doctor=${d.slug}`}><T en="Request a serial" bn="সিরিয়াল নিন" /></a>
+        </aside>
+        <div>
+          <h2 style="font-size:1.3rem;margin-bottom:.5rem"><T en="Qualifications" bn="শিক্ষাগত যোগ্যতা" /></h2>
+          <p>{d.degrees.map(x => <span class="tag">{x}</span>)}</p>
+          <p class="muted"><T {...d.designation} />, <T {...d.workplace} /></p>
+          <h2 style="font-size:1.3rem;margin:1.6rem 0 .5rem"><T en="Specialties" bn="বিশেষজ্ঞতা" /></h2>
+          <p>{d.expertise.map(x => <span class="tag"><T {...x} /></span>)}</p>
+          <h2 style="font-size:1.3rem;margin:1.6rem 0 .5rem"><T en="Chamber schedule" bn="চেম্বারের সময়সূচি" /></h2>
+          <table class="sched">
+            {d.schedule.map(s => (
+              <tr>
+                <td><div class="days">{daysShort.map((n, i) => <i class={s.days.includes(i) ? 'on' : ''}><T {...n} /></i>)}</div></td>
+                <td><T {...range(s.from, s.to)} /></td>
+              </tr>
+            ))}
+          </table>
+          <p class="muted" style="margin-top:.6rem"><T {...d.room} /> · <T en="Weekly off:" bn="সাপ্তাহিক ছুটি:" /> {d.off.map((i, k) => <span>{k ? ', ' : ''}<T {...days[i]} /></span>)}</p>
+          <p class="note" style="margin-top:1rem"><T en="Schedules may change. Please confirm by phone before you come." bn="সময় পরিবর্তন হতে পারে। আসার আগে ফোনে নিশ্চিত হয়ে নিন।" /></p>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>

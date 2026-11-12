@@ -1,0 +1,53 @@
+---
+import Base from '../../layouts/Base.astro';
+import T from '../../components/T.astro';
+import { doctors, departments, daysShort, bn } from '../../data/center.js';
+const dName = (id) => departments.find(d => d.id === id);
+---
+<Base en="Doctors" bn="ডাক্তারের তালিকা">
+  <section class="block">
+    <div class="wrap">
+      <div class="sec-h"><div><h2><T en="Our doctors" bn="আমাদের ডাক্তার" /></h2><p><T en="Search by name, department or specialty" bn="নাম, বিভাগ বা বিশেষজ্ঞতা দিয়ে খুঁজুন" /></p></div></div>
+      <div class="tools">
+        <input id="q" type="search" data-ph-en="Doctor name or specialty" data-ph-bn="ডাক্তারের নাম বা বিশেষজ্ঞতা" aria-label="Search" />
+        <select id="dept" aria-label="Department">
+          <option value="" data-en="All departments" data-bn="সব বিভাগ">All departments</option>
+          {departments.map(d => <option value={d.id} data-en={d.en} data-bn={d.bn}>{d.en}</option>)}
+        </select>
+        <select id="day" aria-label="Day">
+          <option value="" data-en="Any day" data-bn="যেকোনো দিন">Any day</option>
+          {daysShort.map((d, i) => <option value={i} data-en={d.en} data-bn={d.bn + 'বার'}>{d.en}</option>)}
+        </select>
+      </div>
+      <div class="grid" id="list">
+        {doctors.map(d => (
+          <a class="card dcard" href={`/doctors/${d.slug}`}
+             data-s={[d.name.en, d.name.bn, dName(d.dept).en, dName(d.dept).bn, ...d.expertise.flatMap(e => [e.en, e.bn])].join(' ').toLowerCase()}
+             data-dept={d.dept} data-days={[...new Set(d.schedule.flatMap(s => s.days))].join(',')}>
+            <div class="dtop"><div class="avatar">{d.name.en.replace('Dr. ', '')[0]}</div><div><h3><T {...d.name} /></h3><span class="muted"><T {...dName(d.dept)} /></span></div></div>
+            <p class="muted">{d.degrees.join(', ')}</p>
+            <p class="muted"><T {...d.designation} /></p>
+            <div>{d.expertise.slice(0, 3).map(e => <span class="tag"><T {...e} /></span>)}</div>
+            <div class="days">{daysShort.map((n, i) => <i class={d.schedule.some(s => s.days.includes(i)) ? 'on' : ''}><T {...n} /></i>)}</div>
+          </a>
+        ))}
+      </div>
+      <p id="empty" class="muted" hidden><T en="No doctor found. Try another word or department." bn="কোনো ডাক্তার পাওয়া যায়নি। অন্য শব্দ বা বিভাগ চেষ্টা করুন।" /></p>
+    </div>
+  </section>
+  <script is:inline>
+    var q = document.getElementById('q'), dept = document.getElementById('dept'), day = document.getElementById('day');
+    var cards = [].slice.call(document.querySelectorAll('#list .card'));
+    var p = new URLSearchParams(location.search);
+    if (p.get('dept')) dept.value = p.get('dept');
+    function run() {
+      var t = q.value.trim().toLowerCase(), n = 0;
+      cards.forEach(function (c) {
+        var ok = (!t || c.dataset.s.indexOf(t) > -1) && (!dept.value || c.dataset.dept === dept.value) && (!day.value || c.dataset.days.split(',').indexOf(day.value) > -1);
+        c.hidden = !ok; if (ok) n++;
+      });
+      document.getElementById('empty').hidden = n > 0;
+    }
+    [q, dept, day].forEach(function (e) { e.addEventListener('input', run); }); run();
+  </script>
+</Base>

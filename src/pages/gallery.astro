@@ -1,0 +1,33 @@
+---
+import Base from '../layouts/Base.astro';
+import T from '../components/T.astro';
+import { gallery } from '../data/center.js';
+---
+<Base en="Gallery" bn="গ্যালারি">
+  <section class="block">
+    <div class="wrap">
+      <div class="sec-h"><div><h2><T en="Photo gallery" bn="ছবির গ্যালারি" /></h2><p><T en="A look inside our center. Tap a photo to enlarge." bn="আমাদের সেন্টারের ভেতরটা দেখুন। বড় করতে ছবিতে চাপ দিন।" /></p></div></div>
+      <div class="gal">
+        {gallery.map(g => (
+          <figure data-src={g.src}>
+            <img src={g.src} alt={g.title.en} loading="lazy" />
+            <figcaption><b><T {...g.title} /></b><span class="d"><T {...g.text} /></span></figcaption>
+          </figure>
+        ))}
+      </div>
+    </div>
+  </section>
+  <dialog id="lb"><button class="ib" id="lbx" aria-label="Close">✕</button><img id="lbi" alt="" /><div class="cap" id="lbc"></div></dialog>
+  <script is:inline>
+    var lb = document.getElementById('lb');
+    document.querySelectorAll('.gal figure').forEach(function (f) {
+      f.addEventListener('click', function () {
+        document.getElementById('lbi').src = f.dataset.src;
+        document.getElementById('lbc').innerHTML = f.querySelector('figcaption').innerHTML;
+        lb.showModal();
+      });
+    });
+    document.getElementById('lbx').addEventListener('click', function () { lb.close(); });
+    lb.addEventListener('click', function (e) { if (e.target === lb) lb.close(); });
+  </script>
+</Base>

@@ -1,0 +1,53 @@
+---
+import Base from '../layouts/Base.astro';
+import T from '../components/T.astro';
+import { center, doctors, departments, days } from '../data/center.js';
+const dep = (id) => departments.find(d => d.id === id);
+const slim = doctors.filter(d => d.fee > 0).map(d => ({ slug:d.slug, name:d.name, dept:dep(d.dept), days:[...new Set(d.schedule.flatMap(s => s.days))] }));
+---
+<Base en="Appointment" bn="অ্যাপয়েন্টমেন্ট">
+  <section class="block">
+    <div class="wrap">
+      <div class="sec-h"><div><h2><T en="Request a serial" bn="সিরিয়ালের অনুরোধ" /></h2><p><T en="Fill in the form and your request opens in WhatsApp. We will confirm by message." bn="ফর্ম পূরণ করলে WhatsApp-এ অনুরোধ যাবে। আমরা বার্তায় নিশ্চিত করব।" /></p></div></div>
+      <form class="f" id="form">
+        <label><T en="Doctor" bn="ডাক্তার" />
+          <select id="doctor" required>
+            <option value="" data-en="Select" data-bn="নির্বাচন করুন">Select</option>
+            {slim.map(d => <option value={d.slug} data-en={`${d.name.en} — ${d.dept.en}`} data-bn={`${d.name.bn} — ${d.dept.bn}`}>{d.name.en} — {d.dept.en}</option>)}
+          </select>
+        </label>
+        <label><T en="Preferred date" bn="পছন্দের তারিখ" /><input id="date" type="date" required /></label>
+        <label><T en="Patient name" bn="রোগীর নাম" /><input id="name" required autocomplete="name" /></label>
+        <label><T en="Mobile number" bn="মোবাইল নম্বর" /><input id="phone" type="tel" inputmode="tel" required pattern="01[0-9]{9}" placeholder="01XXXXXXXXX" autocomplete="tel" /></label>
+        <label><T en="Short problem (optional)" bn="সংক্ষিপ্ত সমস্যা (ঐচ্ছিক)" /><textarea id="note" rows="3"></textarea></label>
+        <p class="muted" id="hint"></p>
+        <button class="btn" type="submit"><T en="Send request on WhatsApp" bn="WhatsApp-এ অনুরোধ পাঠান" /></button>
+        <p class="muted"><T en="Prefer to call?" bn="ফোনে নিতে চাইলে:" /> {center.serialPhones.map(p => <a href={`tel:${p}`} style="margin-right:.6rem">{p}</a>)}</p>
+      </form>
+    </div>
+  </section>
+  <script is:inline define:vars={{ doctors: slim, wa: center.whatsapp, days, cname: center.name }}>
+    var $ = function (id) { return document.getElementById(id); };
+    var sel = $('doctor'), date = $('date');
+    var slug = new URLSearchParams(location.search).get('doctor'); if (slug) sel.value = slug;
+    date.min = new Date().toISOString().slice(0, 10);
+    var L = function () { return document.documentElement.lang; };
+    function doc() { return doctors.find(function (d) { return d.slug === sel.value; }); }
+    function hint() {
+      var d = doc(), l = L(); if (!d) { $('hint').textContent = ''; return; }
+      var list = d.days.map(function (i) { return days[i][l]; }).join(l === 'bn' ? ', ' : ', ');
+      var m = (l === 'bn' ? d.name.bn + ' বসেন: ' : d.name.en + ' sits on: ') + list + '.';
+      if (date.value) { var w = new Date(date.value + 'T00:00').getDay(); if (d.days.indexOf(w) < 0) m += l === 'bn' ? ' ⚠ নির্বাচিত তারিখে তিনি বসেন না।' : ' ⚠ Not available on the selected date.'; }
+      $('hint').textContent = m;
+    }
+    sel.addEventListener('input', hint); date.addEventListener('input', hint); document.addEventListener('langchange', hint); hint();
+    $('form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var d = doc(), l = L();
+      var text = (l === 'bn' ? 'সিরিয়ালের অনুরোধ - ' + cname.bn + '\nডাক্তার: ' + d.name.bn + '\nতারিখ: ' + date.value + '\nরোগী: ' + $('name').value + '\nমোবাইল: ' + $('phone').value
+        : 'Serial request - ' + cname.en + '\nDoctor: ' + d.name.en + ' (' + d.dept.en + ')\nDate: ' + date.value + '\nPatient: ' + $('name').value + '\nMobile: ' + $('phone').value);
+      if ($('note').value) text += '\n' + (l === 'bn' ? 'সমস্যা: ' : 'Problem: ') + $('note').value;
+      window.open('https://wa.me/' + wa + '?text=' + encodeURIComponent(text), '_blank');
+    });
+  </script>
+</Base>
