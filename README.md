@@ -2,6 +2,10 @@
 
 Node.js 22.23.4+ লাগবে।
 
+## Demo
+
+![Rajashon Hospital & Diagnostic Center demo](./Demo.png)
+
     npm install
     npm run dev      # http://localhost:4321
     npm run build    # dist/
