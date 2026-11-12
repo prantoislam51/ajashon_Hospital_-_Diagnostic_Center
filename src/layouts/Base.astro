@@ -33,14 +33,14 @@ const fullBn = tBn ? `${tBn} | ${center.name.bn}` : center.name.bn;
         <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#0e5c63"/><path d="M13 7h6v6h6v6h-6v6h-6v-6H7v-6h6z" fill="#fff"/></svg>
         <b><T en={center.name.en} bn={center.name.bn} /></b>
       </a>
+      <nav id="nav" aria-label="Main">
+        {links.map(([href, en, b]) => <a href={href} aria-current={(href === '/' ? path === '/' : path.startsWith(href)) ? 'page' : undefined}><T en={en} bn={b} /></a>)}
+      </nav>
       <div class="ctl">
         <button class="ib" id="lang" type="button" aria-label="Change language / ভাষা বদলান"><span data-l="en">বাংলা</span><span data-l="bn">English</span></button>
         <button class="ib" id="theme" type="button" aria-label="Toggle day/night mode"><span class="moon">☾</span><span class="sun">☀</span></button>
         <button class="ib" id="menu" type="button" aria-expanded="false" aria-controls="nav" aria-label="Menu">☰</button>
       </div>
-      <nav id="nav" aria-label="Main">
-        {links.map(([href, en, b]) => <a href={href} aria-current={(href === '/' ? path === '/' : path.startsWith(href)) ? 'page' : undefined}><T en={en} bn={b} /></a>)}
-      </nav>
     </div>
   </header>
   <main><slot /></main>
